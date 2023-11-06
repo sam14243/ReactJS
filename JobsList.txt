@@ -1,0 +1,154 @@
+[App.js]
+// App.js
+import React from 'react';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import Layout from "./components/Layout";
+import HotJobsPage from "./components/HotJobsPage";
+import InformationCenterPage from "./components/InformationCenterPage";
+
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout/>}>
+          <Route index element={<HotJobsPage name = "Hot Jobs" />}/>
+          <Route path="FAQs" element={<InformationCenterPage name = "Information Center" />}/>
+        </Route>
+      </Routes>
+    </Router>
+    
+  );
+}
+
+export default App;
+[HotJobsPage.js]
+import React, { useState } from "react";
+import 'bootstrap/dist/css/bootstrap.css';
+
+import HotJobsSection from "./HotJobsSection";
+
+const HotJobsPage = (props) => {
+    const jobs = [
+        {id: 1, name:'Transctn PROC ASST OPS MGR', exp: '7-10 Years Experience', location: 'Chennai'},
+        {id: 2, name:'Transn Procng Opss Mgr',exp: '10-13 Years Experience', location: 'Chennai'}
+    ];
+    
+    return (
+        <div>
+            <h1>{props.name}</h1>
+            <div className="job-list">
+                {jobs.map((job, index) => (
+                    <HotJobsSection key={index} jobid={job.id} name={job.name} exp={job.exp} location={job.location} />
+                ))}
+            </div>
+        </div>
+    );
+}
+export default HotJobsPage;
+[HotJobsSection.js]
+import React, { useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.css';
+import Button from 'react-bootstrap/Button';
+
+const HotJobsSection = ({ jobid,name,exp,location }) => {
+    return (
+        <div>
+            <h3>{name}</h3>
+            <p>Job ID: {jobid}</p>
+            <p>{exp}</p>
+            <p>Location: {location}</p>
+            <Button variant='success'>Apply</Button>
+            <Button variant='primary'>Share</Button>
+        </div>
+    );
+}
+
+export default HotJobsSection;
+[InformationCenterPage.js]
+import React from 'react';
+import InformationCenterSection from './InformationCenterSection';
+
+const InformationCenterPage = (props) => {
+    const faqs = [
+        {id:1, question: 'How do I apply?', answer: 'I dont know'},
+        {id:2, question: 'How much time?', answer: 'Chamak Challo'}
+    ];
+
+    
+    return (
+        <div>
+            <h3>{props.name}</h3>
+            <ul>
+                {faqs.map((faq, index) => (
+                    <InformationCenterSection key={index} question={faq.question} answer={faq.answer} />
+                ))}
+            </ul>
+        </div>
+    );
+}
+
+export default InformationCenterPage;
+
+[InformationCenterSection.js]
+import React, { useState } from "react";
+import 'bootstrap/dist/css/bootstrap.css';
+import Button from 'react-bootstrap/Button';
+
+const InformationCenterSection = ({ question, answer }) => {
+    const [open, setOpen] = useState(false);
+    
+    const toggleOpen = () => {
+        setOpen(true);
+    };
+    const toggleClose = () => {
+        setOpen(false);
+    };
+
+    return(
+        <div>
+            <li>
+                {open ? (
+                    <button onClick={() => toggleClose()}>
+                        {open ? '-' : '+'} {question}
+                    </button>
+                ) : (
+                    <button onClick={() => toggleOpen()}>
+                        {open ? '-' : '+'} {question}
+                    </button>
+                )}
+                {open && <p>{answer}</p>}
+            </li>
+        </div>
+    );
+}
+export default InformationCenterSection;
+
+[Layout.js]
+import { Outlet, Link } from "react-router-dom";
+
+import 'bootstrap/dist/css/bootstrap.css';
+import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
+
+const Layout = () => {
+  return (
+    <>
+      <Navbar expand="lg" className="bg-body-tertiary">
+      <Container>
+        <Navbar.Brand as={Link} to="/">CAREERS</Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="me-auto">
+            <Nav.Link as={Link} to="/">Hot Jobs</Nav.Link>
+            <Nav.Link as={Link} to="/FAQs">Information Center</Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
+    <Outlet />
+    </>
+  )
+};
+
+export default Layout;

@@ -1,0 +1,242 @@
+[App.js]
+// App.js
+import React from 'react';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import Layout from "./components/Layout";
+import ToDoAR from "./components/ToDoAR";
+import ToDoWork from "./components/ToDoWork";
+
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout/>}>
+          <Route index element={<ToDoAR name = "Academics And Research" />}/>
+          <Route path="work" element={<ToDoWork name = "Work" />}/>
+        </Route>
+      </Routes>
+    </Router>
+    
+  );
+}
+
+export default App;
+
+[Layout.js]
+import { Outlet, Link } from "react-router-dom";
+
+import 'bootstrap/dist/css/bootstrap.css';
+import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
+
+const Layout = () => {
+  return (
+    <>
+      <Navbar expand="lg" className="bg-body-tertiary">
+      <Container>
+        <Navbar.Brand as={Link} to="/">React-Bootstrap</Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="me-auto">
+            <Nav.Link as={Link} to="/">Academics and Research</Nav.Link>
+            <Nav.Link as={Link} to="/work">Work</Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
+    <Outlet />
+    </>
+  )
+};
+
+export default Layout;
+
+[ToDoTask.js]
+import React, { useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.css';
+import Button from 'react-bootstrap/Button';
+
+const ToDoTask = ({ task, onDelete, onEdit }) => {
+    const [editMode, setEditMode] = useState(false);
+    const [editText, setEditText] = useState(task.text);
+
+    const handleEdit = () => {
+        setEditMode(true);
+    }
+
+    const handleCancel = () => {
+        setEditText(task.text);
+        setEditMode(false);
+    }
+    const handleSave = () => {
+        if (editText.trim !== ''){
+            onEdit(task.id, editText);
+            setEditMode(false);
+        }
+    }
+
+    return (
+        <li>
+            <input type="checkbox"  />
+            {task.text}
+            &nbsp;<Button variant = "danger" onClick={() => onDelete(task.id)}>Delete task</Button>
+            {editMode ? (
+                <>
+                    <input 
+                        type="text"
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                    />
+                    &nbsp;<Button variant = "success" onClick={() => handleSave()}>Save</Button>
+                    &nbsp;<Button variant = "danger" onClick={() => handleCancel()}>Cancel</Button>
+                </>
+            ) : (
+                <>
+                     &nbsp;<Button variant = "primary" onClick={() => handleEdit()}>Edit task</Button>
+                </>
+            )}
+        </li>
+    );
+}
+
+export default ToDoTask;
+
+[ToDoList.js]
+import React from 'react';
+import ToDoTask from './ToDoTask';
+
+const ToDoList = ({ tasks, onDelete, onEdit }) => {
+    return (
+        <ul>
+            {tasks && tasks.map((task) => (
+                <ToDoTask key={task.id} task={task} onDelete={onDelete} onEdit={onEdit} />
+            ))}
+        </ul>
+    );
+}
+
+export default ToDoList;
+[ToDoSection.js]
+import React, { useState } from "react";
+import 'bootstrap/dist/css/bootstrap.css';
+import Button from 'react-bootstrap/Button';
+
+import ToDoList from "./ToDoList";
+
+const ToDoSection = ({ section }) => {
+    const [task, setTask] = useState('');
+    const [tasks, setTasks] = useState(section.tasks);
+    const addTask = () => {
+        if (task.trim() !== ''){
+            const newTask = {id:tasks.length + 1, text: task, completed: false};
+            setTasks([...tasks, newTask]);
+            setTask('');
+        }
+    };
+
+    const deleteTask = (id) => {
+        setTasks(tasks.filter((task) => task.id !== id));
+    }
+
+    const editTask = (id, newText) => {
+        const updatedTasks = tasks.map((task) => 
+        (task.id === id) ? { ...task, text: newText } : task);
+        setTasks(updatedTasks);
+        console.log({updatedTasks});
+    }
+
+    return(
+        <div>
+            <h2>{section.title}</h2>
+            <input
+                type="text"
+                value={task}
+                onChange={(e) => setTask(e.target.value)}
+                placeholder="Enter New Task"/>
+            &nbsp;<Button variant="success" onClick={addTask}>Add New Task</Button>
+            <ToDoList key={tasks.id} tasks={tasks} onDelete={deleteTask} onEdit = {editTask} />
+
+        </div>
+    );
+}
+export default ToDoSection;
+
+[ToDoWork.js]
+import React, { useState } from "react";
+import 'bootstrap/dist/css/bootstrap.css';
+import Button from 'react-bootstrap/Button';
+
+import ToDoSection from "./ToDoSection";
+const ToDoWork = (props) => {
+    const [section, setSection] = useState('');
+    const [sections, setSections] = useState([
+        {id:1, title:'FYP', tasks: []},
+        {id:2, title:'Documentation', tasks:[]}
+    ]);
+    const addSection = () => {
+        if (section.trim() !== ''){
+            const newSection = {title: section, tasks: []};
+            setSections([...sections, newSection])
+            setSection('');
+        }
+    }
+    
+    
+    return (
+        <div>
+            <h1>{props.name}</h1>
+            <input
+                type="text"
+                value={section}
+                onChange={(e) => setSection(e.target.value)}
+                placeholder="Enter Section Name"
+            />
+            &nbsp;<Button onClick={() => addSection({})}>Add New Section</Button>
+            {sections.map((section) => (
+                <ToDoSection section={section} />
+            ))}
+        </div>
+    );
+}
+export default ToDoWork;
+
+[ToDoAR.js]
+import React, { useState } from "react";
+import 'bootstrap/dist/css/bootstrap.css';
+import Button from 'react-bootstrap/Button';
+
+import ToDoSection from "./ToDoSection";
+const ToDoAR = (props) => {
+
+    const [section, setSection] = useState('');
+    const [sections, setSections] = useState([
+        {id: 1, title:'Daily', tasks: []},
+        {id: 2, title:'Weekly', tasks:[]}
+    ]);
+    const addSection = () => {
+        if (section.trim() !== ''){
+            const newSection = {title: section, tasks: []};
+            setSections([...sections, newSection])
+            setSection('');
+        }
+    }
+    
+    
+    return (
+        <div>
+            <h1>{props.name}</h1>
+            <input
+                type="text"
+                value={section}
+                onChange={(e) => setSection(e.target.value)}
+                placeholder="Enter Section Name"
+            />
+            &nbsp;<Button onClick={() => addSection({})}>Add New Section</Button>
+            {sections.map((section) => (
+                <ToDoSection section={section} />
+            ))}
+        </div>
+    );
+}
+export default ToDoAR;
